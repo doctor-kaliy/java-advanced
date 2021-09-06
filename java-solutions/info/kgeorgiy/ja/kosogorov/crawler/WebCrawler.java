@@ -38,7 +38,6 @@ public class WebCrawler implements AdvancedCrawler {
     }
 
     private static boolean isValidHost(final String host, final Set<String> hosts) {
-        // :NOTE: Ветвление
         return host != null && (hosts == null || hosts.contains(host));
     }
 
@@ -61,7 +60,6 @@ public class WebCrawler implements AdvancedCrawler {
                 addTask(downloadService, phaser, () -> {
                     final Semaphore semaphore = hostsSemaphores.computeIfAbsent(host, h -> new Semaphore(perHost));
                     try {
-                        // :NOTE: Простои
                         semaphore.acquireUninterruptibly();
                         final Document document = downloader.download(url);
                         if (remainingDepth > 0) {
@@ -70,7 +68,6 @@ public class WebCrawler implements AdvancedCrawler {
                                     final List<String> links = document.extractLinks();
                                     for (final String link : links) {
                                         if (isValidHost(getHost(link), hostsSet) && visited.add(link)) {
-                                            // :NOTE:synchronized
                                             synchronized (nextLayer) {
                                                 nextLayer.add(link);
                                             }
